@@ -1,5 +1,12 @@
-import { Link } from 'react-router-dom';
-import styles from './MovieCard.module.scss';
+import { Link as RouterLink } from 'react-router-dom';
+import {
+    Card,
+    CardMedia,
+    CardContent,
+    Typography,
+    CardActions,
+    Button,
+} from '@mui/material';
 import thumbnail from '../../../../assets/movie-thumb.png';
 
 interface MovieCardProps {
@@ -13,29 +20,40 @@ interface MovieCardProps {
 }
 
 const MovieCard = ({
-    id,
     title,
     overview,
     popularity,
-    language,
     release_date,
     image,
+    id,
 }: MovieCardProps) => {
     return (
-        <div className={styles.movieCard}>
-            <img src={image || thumbnail} alt="Movie thumbnail" />
-            <div className={styles.content}>
-                <Link to={`/movies/${id}`} className={styles.link}>
+        <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <CardMedia
+                component="div"
+                image={image || thumbnail}
+                sx={{ pt: '56.25%' }}
+            ></CardMedia>
+            <CardContent sx={{ flexGrow: 1 }}>
+                <Typography variant="h5" gutterBottom>
                     {title}
-                </Link>
-                <div className={styles.overview}>{overview}</div>
-                <div className={styles.popularity}>{popularity}</div>
-                <div className={styles.additional}>
-                    <p>language: {language}</p>
-                    <p>published: {release_date}</p>
-                </div>
-            </div>
-        </div>
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                    {overview}
+                </Typography>
+                <Typography variant="button" display="block" mt={2}>
+                    {popularity}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                    published at: {release_date}
+                </Typography>
+            </CardContent>
+            <CardActions>
+                <Button component={RouterLink} to={`/movies/${id}`}>
+                    Details
+                </Button>
+            </CardActions>
+        </Card>
     );
 };
 
