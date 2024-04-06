@@ -1,0 +1,16 @@
+@use './styles/shared' as *;
+.header {
+    padding: 2rem;
+    background-color: #000;
+    .list {
+        display: flex;
+        gap: 1rem;
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    a {
+        font-size: 1.2rem;
+        color: $nav-color;
+    }
+}
