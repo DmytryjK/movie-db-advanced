@@ -20,29 +20,38 @@ interface MoviesState {
     top: Movie[];
     movie: Movie | Record<string, never>;
     loading: boolean;
+    page: number;
+    hasMorePages: boolean;
 }
 
 const initialState: MoviesState = {
     top: [],
     movie: {},
     loading: false,
+    page: 0,
+    hasMorePages: true,
 };
 
-const moviesLoaded = (movies: Movie[]) => ({
+const moviesLoaded = (
+    movies: Movie[],
+    page: number,
+    hasMorePages: boolean,
+) => ({
     type: 'movies/loaded',
-    payload: movies,
+    payload: { movies, page, hasMorePages },
 });
 
 const moviesLoading = () => ({
     type: 'movies/loading',
 });
 
-export const fetchMovies = (): AppThunk<Promise<void>> => {
+const fetchPage = (page: number): AppThunk<Promise<void>> => {
     return async (dispatch) => {
         dispatch(moviesLoading());
-        const resMovies = await client.getNowPlaying();
+        const resMovies = await client.getNowPlaying(page);
         const resImages = await client.getConfiguration();
-        const mappedResults: MovieDetails[] = resMovies.map((movie) => {
+        const { results } = resMovies;
+        const mappedResults: MovieDetails[] = results.map((movie) => {
             return {
                 ...movie,
                 image: resImages.images.base_url
@@ -50,15 +59,32 @@ export const fetchMovies = (): AppThunk<Promise<void>> => {
                     : undefined,
             };
         });
-        dispatch(moviesLoaded(mappedResults));
+        const hasMorePages = resMovies.page < resMovies.totalPages;
+        dispatch(moviesLoaded(mappedResults, page, hasMorePages));
+    };
+};
+
+export const fetchNextPage = (): AppThunk<Promise<void>> => {
+    return async (dispatch, getState) => {
+        const nextPage = getState().movies.page + 1;
+        dispatch(fetchPage(nextPage));
     };
 };
 
 const moviesReducer = createReducer<MoviesState>(initialState, {
-    'movies/loaded': (state, action: ActionWithPayload<Movie[]>) => {
+    'movies/loaded': (
+        state,
+        action: ActionWithPayload<{
+            movies: Movie[];
+            page: number;
+            hasMorePages: boolean;
+        }>,
+    ) => {
         return {
             ...state,
-            top: action.payload,
+            top: [...state.top, ...action.payload.movies],
+            page: action.payload.page,
+            hasMorePages: action.payload.hasMorePages,
             loading: false,
         };
     },

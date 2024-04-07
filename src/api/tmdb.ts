@@ -25,9 +25,17 @@ const get = async <TBody>(relativeUrl: string): Promise<TBody | undefined> => {
     }
 };
 
+type GetResult<T> = PageResponse<T> | undefined;
+
+interface PageDetail<TResult> {
+    results: TResult[];
+    page: number;
+    totalPages: number;
+}
 interface PageResponse<TResult> {
     results: TResult[];
     page: number;
+    total_pages: number;
 }
 
 export interface MovieDetails {
@@ -51,11 +59,21 @@ interface Configuration {
 }
 
 export const client = {
-    async getNowPlaying(): Promise<MovieDetails[]> {
-        const res = await get<Partial<PageResponse<MovieDetails>>>(
-            '/movie/now_playing?language=en-US&page=1',
+    async getNowPlaying(
+        page: number = 1,
+    ): Promise<PageDetail<MovieDetails> | Record<string, never>> {
+        const res = await get<GetResult<MovieDetails>>(
+            `/movie/now_playing?language=en-US&page=${page}`,
         );
-        return res?.results || [];
+        if (res) {
+            return {
+                results: res.results,
+                page: res.page,
+                totalPages: res.total_pages,
+            };
+        } else {
+            return {};
+        }
     },
     async getConfiguration(): Promise<Configuration | Record<string, never>> {
         const res = await get<Configuration>('/configuration');
