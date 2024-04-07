@@ -14,7 +14,6 @@ function Copyright() {
 const Home = () => {
     const auth = useContext(AuthContext);
     const loggedIn = auth.user !== anonymousUser;
-
     return (
         <Box sx={{ bgcolor: 'background.paper', pt: 8, pb: 8 }}>
             <Container maxWidth="sm">

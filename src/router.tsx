@@ -2,12 +2,15 @@ import App from './App.tsx';
 import { About, Movies, Movie, Home } from './features/index.ts';
 import { createBrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
+import { ErrorBoundary } from './ErrorBoundary.tsx';
 import store from './redux/store/store.ts';
 
 const AppEntryPoint = () => {
     return (
         <Provider store={store}>
-            <App />
+            <ErrorBoundary>
+                <App />
+            </ErrorBoundary>
         </Provider>
     );
 };
