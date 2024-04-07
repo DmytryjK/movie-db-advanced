@@ -1,31 +1,9 @@
-import { Link as RouterLink, Outlet } from 'react-router-dom';
-import style from './App.module.scss';
-import {
-    AppBar,
-    CssBaseline,
-    Toolbar,
-    Link,
-    ThemeProvider,
-    createTheme,
-    Typography,
-} from '@mui/material';
-import LiveTvIcon from '@mui/icons-material/LiveTv';
-import type { ReactNode } from 'react';
+import { Outlet } from 'react-router-dom';
+import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import { deepOrange } from '@mui/material/colors';
-
-const HeaderLink = ({ children, to }: { children: ReactNode; to: string }) => {
-    return (
-        <Link
-            component={RouterLink}
-            to={to}
-            variant="button"
-            color="inherit"
-            sx={{ my: 1, mx: 1.5 }}
-        >
-            {children}
-        </Link>
-    );
-};
+import Header from './Header';
+import { AuthContext, AuthInfo, anonymousUser } from './AuthContext';
+import { useState } from 'react';
 
 const defaultTheme = createTheme({
     palette: {
@@ -37,33 +15,28 @@ const defaultTheme = createTheme({
 });
 
 const App = () => {
+    const [auth, setAuth] = useState<AuthInfo>({
+        user: anonymousUser,
+    });
+
+    const fakeAuth: AuthInfo = {
+        user: {
+            name: 'Diana',
+        },
+    };
+
     return (
         <ThemeProvider theme={defaultTheme}>
             <CssBaseline />
-            <AppBar>
-                <Toolbar>
-                    <LiveTvIcon sx={{ mr: 2 }} />
-                    <Typography variant="h6" color="inherit" noWrap>
-                        The Movies DB
-                    </Typography>
-                    <nav className={style.nav}>
-                        <ul className={style.list}>
-                            <li>
-                                <HeaderLink to="/">Home</HeaderLink>
-                            </li>
-                            <li>
-                                <HeaderLink to="/about">About</HeaderLink>
-                            </li>
-                            <li>
-                                <HeaderLink to="/movies">Movies</HeaderLink>
-                            </li>
-                        </ul>
-                    </nav>
-                </Toolbar>
-            </AppBar>
-            <main>
-                <Outlet />
-            </main>
+            <AuthContext.Provider value={auth}>
+                <Header
+                    onLogin={() => setAuth(fakeAuth)}
+                    onLogout={() => setAuth({ user: anonymousUser })}
+                />
+                <main>
+                    <Outlet />
+                </main>
+            </AuthContext.Provider>
         </ThemeProvider>
     );
 };

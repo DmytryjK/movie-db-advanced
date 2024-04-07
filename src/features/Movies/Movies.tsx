@@ -1,19 +1,18 @@
-import { useEffect } from 'react';
-import { connect } from 'react-redux';
+import { useContext, useEffect } from 'react';
 import MovieCard from './components/MovieCard/MovieCard';
-import { useAppDispatch } from '../../hooks';
-import { fetchMovies } from '../../reducers/moviesReducer';
-import type { RootState } from '../../store/store';
-import type { MovieDetails } from '../../api/tmdb';
+import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
+import { fetchMovies } from '../../redux/reducers/moviesReducer';
 import { Container, Typography, LinearProgress, Grid } from '@mui/material';
+import { AuthContext, anonymousUser } from '../../AuthContext';
 
-interface MoviesProps {
-    movies: MovieDetails[];
-    loading: boolean;
-}
-
-const Movies = ({ movies, loading }: MoviesProps) => {
+const Movies = () => {
+    const movies = useAppSelector((state) => state.movies.top);
+    const loading = useAppSelector((state) => state.movies.loading);
     const dispatch = useAppDispatch();
+
+    const auth = useContext(AuthContext);
+    const loggedIn = auth.user !== anonymousUser;
+
     useEffect(() => {
         dispatch(fetchMovies());
     }, [dispatch]);
@@ -48,6 +47,7 @@ const Movies = ({ movies, loading }: MoviesProps) => {
                                         language={original_language}
                                         release_date={release_date}
                                         image={image}
+                                        enableUserActions={loggedIn}
                                     ></MovieCard>
                                 </Grid>
                             );
@@ -59,12 +59,4 @@ const Movies = ({ movies, loading }: MoviesProps) => {
     );
 };
 
-const mapStateToProps = (state: RootState) => {
-    return {
-        movies: state.movies.top,
-        loading: state.movies.loading,
-    };
-};
-
-const connector = connect(mapStateToProps);
-export default connector(Movies);
+export default Movies;

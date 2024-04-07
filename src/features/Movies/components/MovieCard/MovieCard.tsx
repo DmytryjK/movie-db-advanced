@@ -6,7 +6,10 @@ import {
     Typography,
     CardActions,
     Button,
+    IconButton,
+    Tooltip,
 } from '@mui/material';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import thumbnail from '../../../../assets/movie-thumb.png';
 
 interface MovieCardProps {
@@ -17,6 +20,7 @@ interface MovieCardProps {
     language: string;
     release_date: string;
     image?: string;
+    enableUserActions?: boolean;
 }
 
 const MovieCard = ({
@@ -26,6 +30,7 @@ const MovieCard = ({
     release_date,
     image,
     id,
+    enableUserActions,
 }: MovieCardProps) => {
     return (
         <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -52,6 +57,13 @@ const MovieCard = ({
                 <Button component={RouterLink} to={`/movies/${id}`}>
                     Details
                 </Button>
+                {enableUserActions && (
+                    <Tooltip title="Add to favorite">
+                        <IconButton>
+                            <FavoriteIcon />
+                        </IconButton>
+                    </Tooltip>
+                )}
             </CardActions>
         </Card>
     );

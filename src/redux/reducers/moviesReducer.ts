@@ -1,6 +1,6 @@
-import { MovieDetails, client } from '../api/tmdb';
-import { createReducer } from '../redux/utils';
-import type { ActionWithPayload } from '../redux/utils';
+import { MovieDetails, client } from '../../api/tmdb';
+import { createReducer } from '../utils';
+import type { ActionWithPayload } from '../utils';
 import { AppThunk } from '../store/store';
 
 export interface Movie {
@@ -13,6 +13,7 @@ export interface Movie {
     title: string;
     vote_average: number;
     vote_count: number;
+    image?: string;
 }
 
 interface MoviesState {

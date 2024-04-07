@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
-import type { RootState } from '../../store/store';
-import type { Movie } from '../../reducers/moviesReducer';
+import type { RootState } from '../../redux/store/store';
+import type { Movie } from '../../redux/reducers/moviesReducer';
 import style from './Movie.module.scss';
 
 interface MovieProps {
