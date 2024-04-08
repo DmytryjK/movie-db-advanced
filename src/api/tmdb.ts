@@ -79,7 +79,6 @@ export const client = {
         if (filters.genres?.length) {
             params.append('with_genres', filters.genres.join(','));
         }
-        console.log(filters);
         const res = await get<GetResult<MovieDetails>>(
             `/discover/movie?${params}`,
         );

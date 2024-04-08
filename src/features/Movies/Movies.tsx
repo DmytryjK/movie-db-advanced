@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
 import { fetchNextPage } from '../../redux/reducers/moviesSlice';
 import { Container, LinearProgress, Grid } from '@mui/material';
@@ -37,6 +37,10 @@ const Movies = () => {
         }
     }, [dispatch, entry?.isIntersecting, hasMorePages, filters]);
 
+    const handleAddToFavorite = useCallback((id: number) => {
+        console.log(id);
+    }, []);
+
     return (
         <Grid container spacing={12} sx={{ flexWrap: 'nowrap' }}>
             <Grid item xs="auto">
@@ -55,7 +59,7 @@ const Movies = () => {
                         Now playing
                     </Typography> */}
                     <Grid container spacing={4}>
-                        {movies.map((movie) => {
+                        {movies.map((movie, index) => {
                             const {
                                 id,
                                 title,
@@ -66,7 +70,13 @@ const Movies = () => {
                                 image,
                             } = movie;
                             return (
-                                <Grid key={id} item xs={12} sm={6} md={4}>
+                                <Grid
+                                    key={`${id}${index}`}
+                                    item
+                                    xs={12}
+                                    sm={6}
+                                    md={4}
+                                >
                                     <MovieCard
                                         id={id}
                                         title={title}
@@ -76,6 +86,7 @@ const Movies = () => {
                                         release_date={release_date}
                                         image={image}
                                         enableUserActions={loggedIn}
+                                        onAddFavorite={handleAddToFavorite}
                                     ></MovieCard>
                                 </Grid>
                             );

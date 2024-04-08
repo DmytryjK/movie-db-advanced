@@ -41,19 +41,20 @@ const MoviesFilter = ({ onApply }: MovieFilterProps) => {
         },
     });
 
-    const fetchKeywords = useMemo(
-        () =>
-            debounce(async (query: string) => {
-                if (!query) {
-                    setKeywordsOptions([]);
-                    return;
-                }
+    const fetchKeywordsOptions = async (query: string) => {
+        if (!query) {
+            setKeywordsOptions([]);
+            return;
+        }
 
-                setKeywordsLoading(true);
-                const options = await client.getKeywords(query);
-                setKeywordsLoading(false);
-                setKeywordsOptions(options);
-            }, 400),
+        setKeywordsLoading(true);
+        const options = await client.getKeywords(query);
+        setKeywordsLoading(false);
+        setKeywordsOptions(options);
+    };
+
+    const fetchKeywords = useMemo(
+        () => debounce(fetchKeywordsOptions, 400),
         [],
     );
     return (

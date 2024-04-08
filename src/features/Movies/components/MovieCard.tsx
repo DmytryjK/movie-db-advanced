@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
     Card,
@@ -21,6 +22,7 @@ interface MovieCardProps {
     release_date: string;
     image?: string;
     enableUserActions?: boolean;
+    onAddFavorite?: (id: number) => void;
 }
 
 const MovieCard = ({
@@ -31,6 +33,7 @@ const MovieCard = ({
     image,
     id,
     enableUserActions,
+    onAddFavorite,
 }: MovieCardProps) => {
     return (
         <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -59,7 +62,7 @@ const MovieCard = ({
                 </Button>
                 {enableUserActions && (
                     <Tooltip title="Add to favorite">
-                        <IconButton>
+                        <IconButton onClick={() => onAddFavorite?.(id)}>
                             <FavoriteIcon />
                         </IconButton>
                     </Tooltip>
@@ -69,4 +72,4 @@ const MovieCard = ({
     );
 };
 
-export default MovieCard;
+export default memo(MovieCard);
