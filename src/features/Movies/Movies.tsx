@@ -1,15 +1,23 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import {
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+    lazy,
+    Suspense,
+} from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
 import { fetchNextPage } from '../../redux/reducers/moviesSlice';
 import { Container, LinearProgress, Grid } from '@mui/material';
 import { AuthContext, anonymousUser } from '../../AuthContext';
 import { useIntersectionObserver } from '../../hooks/useIntersectionObserver';
 import MovieCard from './components/MovieCard';
-import MoviesFilter from './components/MoviesFilter';
+// import MoviesFilter from './components/MoviesFilter';
 import { resetMovies } from '../../redux/reducers/moviesSlice';
 import type { Filters } from './components/MoviesFilter';
+const MoviesFilter = lazy(() => import('./components/MoviesFilter'));
 
-const Movies = () => {
+export const Component = () => {
     const [filters, setFilters] = useState<Filters>();
     const movies = useAppSelector((state) => state.movies.top);
     const loading = useAppSelector((state) => state.movies.loading);
@@ -45,12 +53,14 @@ const Movies = () => {
         <Grid container spacing={12} sx={{ flexWrap: 'nowrap' }}>
             <Grid item xs="auto">
                 <Container sx={{ py: 12 }}>
-                    <MoviesFilter
-                        onApply={(f) => {
-                            dispatch(resetMovies());
-                            setFilters(f);
-                        }}
-                    />
+                    <Suspense fallback="loading...">
+                        <MoviesFilter
+                            onApply={(f) => {
+                                dispatch(resetMovies());
+                                setFilters(f);
+                            }}
+                        />
+                    </Suspense>
                 </Container>
             </Grid>
             <Grid item xs={12}>
@@ -103,4 +113,5 @@ const Movies = () => {
     );
 };
 
-export default Movies;
+// export default Movies;
+Component.displayName = 'Movies';

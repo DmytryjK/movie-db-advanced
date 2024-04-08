@@ -1,9 +1,13 @@
 import App from './App.tsx';
-import { About, Movies, Movie, Home } from './features/index.ts';
+import { Movie, Home } from './features/index.ts';
 import { createBrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { ErrorBoundary } from './ErrorBoundary.tsx';
 import store from './redux/store/store.ts';
+import { lazy, Suspense } from 'react';
+import { LinearProgress } from '@mui/material';
+
+const About = lazy(() => import('./features/About/About.tsx'));
 
 const AppEntryPoint = () => {
     return (
@@ -26,11 +30,15 @@ const router = createBrowserRouter([
             },
             {
                 path: '/about',
-                element: <About />,
+                element: (
+                    <Suspense fallback={<LinearProgress sx={{ mt: 10 }} />}>
+                        <About />
+                    </Suspense>
+                ),
             },
             {
                 path: '/movies',
-                element: <Movies />,
+                lazy: () => import('./features/Movies/Movies.tsx'),
             },
             {
                 path: '/movies/:id',
