@@ -1,4 +1,5 @@
 import { configuration } from '../configuration';
+import type { KeywordItem } from '../features/Movies/components/MoviesFilter';
 
 const get = async <TBody>(relativeUrl: string): Promise<TBody | undefined> => {
     const options = {
@@ -58,12 +59,29 @@ interface Configuration {
     };
 }
 
+export interface MoviesFiltersId {
+    keywords?: number[];
+    genres?: number[];
+}
+
 export const client = {
-    async getNowPlaying(
+    async getMovies(
         page: number = 1,
+        filters: MoviesFiltersId,
     ): Promise<PageDetail<MovieDetails> | Record<string, never>> {
+        const params = new URLSearchParams({
+            page: page.toString(),
+        });
+
+        if (filters.keywords?.length) {
+            params.append('with_keywords', filters.keywords.join('|'));
+        }
+        if (filters.genres?.length) {
+            params.append('with_genres', filters.genres.join(','));
+        }
+        console.log(filters);
         const res = await get<GetResult<MovieDetails>>(
-            `/movie/now_playing?language=en-US&page=${page}`,
+            `/discover/movie?${params}`,
         );
         if (res) {
             return {
@@ -78,5 +96,11 @@ export const client = {
     async getConfiguration(): Promise<Configuration | Record<string, never>> {
         const res = await get<Configuration>('/configuration');
         return res || {};
+    },
+    async getKeywords(query: string): Promise<KeywordItem[]> {
+        const res = await get<PageResponse<KeywordItem>>(
+            `/search/keyword?query=${query}`,
+        );
+        return res?.results || [];
     },
 };

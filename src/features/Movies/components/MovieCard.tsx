@@ -10,7 +10,7 @@ import {
     Tooltip,
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import thumbnail from '../../../../assets/movie-thumb.png';
+import thumbnail from '../../../assets/movie-thumb.png';
 
 interface MovieCardProps {
     id: number;
