@@ -8,6 +8,7 @@ import { lazy, Suspense } from 'react';
 import { LinearProgress } from '@mui/material';
 
 const About = lazy(() => import('./features/About/About.tsx'));
+const Extra = lazy(() => import('./features/Extra/Extra.tsx'));
 
 const AppEntryPoint = () => {
     return (
@@ -43,6 +44,14 @@ const router = createBrowserRouter([
             {
                 path: '/movies/:id',
                 element: <Movie movie={{}} />,
+            },
+            {
+                path: '/extra',
+                element: (
+                    <Suspense fallback={<LinearProgress sx={{ mt: 10 }} />}>
+                        <Extra />
+                    </Suspense>
+                ),
             },
         ],
     },
