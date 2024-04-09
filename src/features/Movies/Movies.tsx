@@ -1,49 +1,47 @@
-import {
-    useCallback,
-    useContext,
-    useEffect,
-    useState,
-    lazy,
-    Suspense,
-} from 'react';
-import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
-import { fetchNextPage } from '../../redux/reducers/moviesSlice';
+import { useCallback, useContext, useState, lazy, Suspense } from 'react';
 import { Container, LinearProgress, Grid } from '@mui/material';
 import { AuthContext, anonymousUser } from '../../AuthContext';
 import { useIntersectionObserver } from '../../hooks/useIntersectionObserver';
 import MovieCard from './components/MovieCard';
-// import MoviesFilter from './components/MoviesFilter';
-import { resetMovies } from '../../redux/reducers/moviesSlice';
-import type { Filters } from './components/MoviesFilter';
+import type { MoviesQuery } from '../../services/tmdb';
+import {
+    MoviesFilters,
+    useGetConfigurationQuery,
+    useGetMoviesQuery,
+} from '../../services/tmdb';
 const MoviesFilter = lazy(() => import('./components/MoviesFilter'));
 
 export const Component = () => {
-    const [filters, setFilters] = useState<Filters>();
-    const movies = useAppSelector((state) => state.movies.top);
-    const loading = useAppSelector((state) => state.movies.loading);
-    const hasMorePages = useAppSelector((state) => state.movies.hasMorePages);
-    const dispatch = useAppDispatch();
+    const { data: configuration } = useGetConfigurationQuery();
+    const [query, setQuery] = useState<MoviesQuery>({
+        filters: {},
+        page: 1,
+    });
+    const { data, isFetching } = useGetMoviesQuery(query);
+    const movies = data?.results ?? [];
+    const hasMorePages = data?.hasMorePages;
 
     const auth = useContext(AuthContext);
     const loggedIn = auth.user !== anonymousUser;
 
-    const [targetRef, entry] = useIntersectionObserver();
+    const formatImageUrl = (imagePath?: string | null) => {
+        return imagePath && configuration
+            ? `${configuration.images.base_url}w780${imagePath}`
+            : undefined;
+    };
 
-    useEffect(() => {
-        dispatch(resetMovies());
-    }, [dispatch]);
-
-    useEffect(() => {
-        if (entry?.isIntersecting && hasMorePages) {
-            const moviesFiltersId = filters
-                ? {
-                      keywords: filters.keywords.map((keyword) => keyword.id),
-                      genres: filters?.genres,
-                  }
-                : undefined;
-            dispatch(fetchNextPage(moviesFiltersId));
+    const onIntersect = useCallback(() => {
+        if (hasMorePages) {
+            setQuery((prev) => {
+                return {
+                    ...prev,
+                    page: prev.page + 1,
+                };
+            });
         }
-    }, [dispatch, entry?.isIntersecting, hasMorePages, filters]);
+    }, [hasMorePages]);
+
+    const [targetRef] = useIntersectionObserver({ onIntersect });
 
     const handleAddToFavorite = useCallback((id: number) => {
         console.log(id);
@@ -56,8 +54,15 @@ export const Component = () => {
                     <Suspense fallback="loading...">
                         <MoviesFilter
                             onApply={(f) => {
-                                dispatch(resetMovies());
-                                setFilters(f);
+                                // dispatch(resetMovies());
+                                const filters: MoviesFilters = {
+                                    keywords: f.keywords?.map((k) => k.id),
+                                    genres: f.genres,
+                                };
+                                setQuery({
+                                    page: 1,
+                                    filters,
+                                });
                             }}
                         />
                     </Suspense>
@@ -70,6 +75,7 @@ export const Component = () => {
                     </Typography> */}
                     <Grid container spacing={4}>
                         {movies.map((movie, index) => {
+                            console.log(movie);
                             const {
                                 id,
                                 title,
@@ -77,7 +83,7 @@ export const Component = () => {
                                 popularity,
                                 original_language,
                                 release_date,
-                                image,
+                                backdrop_path,
                             } = movie;
                             return (
                                 <Grid
@@ -94,7 +100,7 @@ export const Component = () => {
                                         popularity={popularity}
                                         language={original_language}
                                         release_date={release_date}
-                                        image={image}
+                                        image={formatImageUrl(backdrop_path)}
                                         enableUserActions={loggedIn}
                                         onAddFavorite={handleAddToFavorite}
                                     ></MovieCard>
@@ -103,7 +109,7 @@ export const Component = () => {
                         })}
                     </Grid>
                     <div ref={targetRef}>
-                        {loading && (
+                        {isFetching && movies.length && (
                             <LinearProgress color="secondary" sx={{ mt: 3 }} />
                         )}
                     </div>
